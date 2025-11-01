@@ -41,11 +41,8 @@
             scons
           '';
           installPhase = ''
-            mkdir -p $out/lib
-            cp -r ./bin/* $out/lib
-            cp -r ./include $out
-            cp -r ./gen $out
-            cp -r ./gdextension $out
+            mkdir -p $out
+            cp -r . $out
           '';
         };
 
