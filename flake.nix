@@ -48,11 +48,12 @@
 
         # A devshell that offers a build ecosystem for gdextension plugins with nix
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ scons ];
+          buildInputs = with pkgs; [ scons pkgsCross.mingwW64.buildPackages.gcc pkgsCross.mingwW64.windows.mcfgthreads ];
           shellHook = ''
             export PS1="\[\e[34m\]🤖 [\u@\h:\w]\$\[\e[0m\] "
             export GODOT_CPP_SRC=${packages.godot-cpp-src-patched}
             export PYTHONPATH=${packages.godot-cpp-src-patched}:$PYTHONPATH
+            export CPPPATH=${pkgs.pkgsCross.mingwW64.windows.mcfgthreads.dev}/include:$CPPPATH
           '';
         };
 
