@@ -1,0 +1,53 @@
+diff --git a/SConstruct b/SConstruct
+index 8acea26..7a30b3b 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -27,7 +27,7 @@ if profile:
+     elif os.path.isfile(profile + ".py"):
+         customs.append(profile + ".py")
+ opts = Variables(customs, ARGUMENTS)
+-cpp_tool = Tool("godotcpp", toolpath=["tools"])
++cpp_tool = Tool("godotcpp", toolpath=[os.path.join(os.getenv("GODOT_CPP_SRC"), "tools")])
+ cpp_tool.options(opts, env)
+ opts.Update(env)
+ 
+diff --git a/tools/godotcpp.py b/tools/godotcpp.py
+index 3646264..905e24d 100644
+--- a/tools/godotcpp.py
++++ b/tools/godotcpp.py
+@@ -16,7 +16,7 @@ from doc_source_generator import scons_generate_doc_source
+ 
+ 
+ def add_sources(sources, dir, extension):
+-    for f in os.listdir(dir):
++    for f in os.listdir(os.path.join(os.getenv("GODOT_CPP_SRC"), dir)):
+         if f.endswith("." + extension):
+             sources.append(dir + "/" + f)
+ 
+@@ -374,7 +374,7 @@ def options(opts, env):
+ 
+     # Add platform options (custom tools can override platforms)
+     for pl in sorted(set(platforms + custom_platforms)):
+-        tool = Tool(pl, toolpath=get_platform_tools_paths(env))
++        tool = Tool(pl, toolpath=[os.path.join(os.getenv("GODOT_CPP_SRC"), "tools")])
+         if hasattr(tool, "options"):
+             tool.options(opts)
+ 
+@@ -440,7 +440,7 @@ def generate(env):
+     env["optimize"] = ARGUMENTS.get("optimize", opt_level)
+     env["debug_symbols"] = get_cmdline_bool("debug_symbols", env.dev_build)
+ 
+-    tool = Tool(env["platform"], toolpath=get_platform_tools_paths(env))
++    tool = Tool(env["platform"], toolpath=[os.path.join(os.getenv("GODOT_CPP_SRC"), "tools")])
+ 
+     if tool is None or not tool.exists(env):
+         raise ValueError("Required toolchain not found for platform " + env["platform"])
+@@ -518,7 +518,7 @@ def generate(env):
+ 
+ 
+ def _godot_cpp(env):
+-    extension_dir = normalize_path(env.get("gdextension_dir", env.Dir("gdextension").abspath), env)
++    extension_dir = os.path.join(os.getenv("GODOT_CPP_SRC"), "gdextension")
+     api_file = normalize_path(env.get("custom_api_file", env.File(extension_dir + "/extension_api.json").abspath), env)
+     bindings = env.GodotCPPBindings(
+         env.Dir("."),
