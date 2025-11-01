@@ -45,6 +45,7 @@
             cp -r ./bin/* $out/lib
             cp -r ./include $out
             cp -r ./gen $out
+            cp -r ./gdextension $out
           '';
         };
 
