@@ -38,6 +38,7 @@
             export PYTHONPATH=${godotCppSrc}:$PYTHONPATH
           '';
         };
+        formatter = pkgs.nixpkgs-fmt;
       }
     );
 }
