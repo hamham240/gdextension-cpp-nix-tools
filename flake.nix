@@ -6,15 +6,15 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }: 
-    flake-utils.lib.eachDefaultSystem (system: 
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
 
         godotCppSrc = pkgs.fetchFromGitHub {
-          owner  = "godotengine";
-          repo   = "godot-cpp";
-          tag   = "godot-4.4.1-stable";
+          owner = "godotengine";
+          repo = "godot-cpp";
+          tag = "godot-4.4.1-stable";
           sha256 = "sha256-DW8OWbiA409qAyOkzxEYiPPRa5cH2TutIR7OuC3ZRgc=";
         };
 
@@ -29,7 +29,7 @@
             cp -r . $out
           '';
         };
-      in 
+      in
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [ scons ];
