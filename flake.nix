@@ -30,16 +30,15 @@
             mkdir -p $out
             cp -r . $out
           '';
-          shellHook = ''
-            export GODOT_CPP_SRC=$out
-            export PYTHONPATH=$out:$PYTHONPATH
-          '';
         };
 
         # A devshell that offers a build ecosystem for gdextension plugins with nix
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [ scons ];
-          shellHook = packages.godot-cpp-patched.shellHook;
+          shellHook = ''
+            export GODOT_CPP_SRC=${packages.godot-cpp-patched}
+            export PYTHONPATH=${packages.godot-cpp-patched}:$PYTHONPATH
+          '';
         };
 
         formatter = pkgs.nixpkgs-fmt;
