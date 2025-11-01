@@ -1,5 +1,5 @@
 diff --git a/SConstruct b/SConstruct
-index 8acea26..7ebb81e 100644
+index 8acea26..a37ac4a 100644
 --- a/SConstruct
 +++ b/SConstruct
 @@ -14,6 +14,13 @@ except Exception:
@@ -7,11 +7,11 @@ index 8acea26..7ebb81e 100644
  env.PrependENVPath("PATH", os.getenv("PATH"))
  
 +# For windows compilation with nix
-+if "platform" in env:
-+    if env["platform"] == "windows":
-+        env.Append(CPPPATH=[os.getenv("MCFGTHREADS_INCLUDE_DIR")])
-+        env.Append(LIBPATH=[os.getenv("MCFGTHREADS_LIB_DIR"), os.getenv("MCFGTHREADS_DLL_DIR")])
-+        env.Append(LIBS=['mcfgthread'])
++platform_arg = ARGUMENTS.get("platform", None)
++if platform_arg == "windows":
++    env.Append(CPPPATH=[os.getenv("MCFGTHREADS_INCLUDE_DIR")])
++    env.Append(LIBPATH=[os.getenv("MCFGTHREADS_LIB_DIR"), os.getenv("MCFGTHREADS_DLL_DIR")])
++    env.Append(LIBS=['mcfgthread'])
 +
  # Custom options and profile flags.
  customs = ["custom.py"]
