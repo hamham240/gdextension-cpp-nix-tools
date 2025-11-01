@@ -50,6 +50,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [ scons ];
           shellHook = ''
+            export PS1="\[\e[34m\]🤖 [\u@\h:\w]\$\[\e[0m\] "
             export GODOT_CPP_SRC=${packages.godot-cpp-src-patched}
             export PYTHONPATH=${packages.godot-cpp-src-patched}:$PYTHONPATH
           '';
