@@ -53,7 +53,8 @@
             export PS1="\[\e[34m\]🤖 [\u@\h:\w]\$\[\e[0m\] "
             export GODOT_CPP_SRC=${packages.godot-cpp-src-patched}
             export PYTHONPATH=${packages.godot-cpp-src-patched}:$PYTHONPATH
-            export CPPPATH=${pkgs.pkgsCross.mingwW64.windows.mcfgthreads.dev}/include:$CPPPATH
+            export MCFGTHREADS_INCLUDE_DIR=${pkgs.pkgsCross.mingwW64.windows.mcfgthreads.dev}/include
+            export MCFGTHREADS_LIB_DIR=${pkgs.pkgsCross.mingwW64.windows.mcfgthreads}/bin
           '';
         };
 
