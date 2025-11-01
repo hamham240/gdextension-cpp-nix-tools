@@ -1,8 +1,20 @@
 diff --git a/SConstruct b/SConstruct
-index 8acea26..7a30b3b 100644
+index 8acea26..c0379d5 100644
 --- a/SConstruct
 +++ b/SConstruct
-@@ -27,7 +27,7 @@ if profile:
+@@ -14,6 +14,11 @@ except Exception:
+ 
+ env.PrependENVPath("PATH", os.getenv("PATH"))
+ 
++# For windows compilation with nix
++env.Append(CPPPATH=[os.getenv("MCFGTHREADS_INCLUDE_DIR")])
++env.Append(LIBPATH=[os.getenv("MCFGTHREADS_LIB_DIR"), os.getenv("MCFGTHREADS_DLL_DIR")])
++env.Append(LIBS=['mcfgthread'])
++
+ # Custom options and profile flags.
+ customs = ["custom.py"]
+ try:
+@@ -27,7 +32,7 @@ if profile:
      elif os.path.isfile(profile + ".py"):
          customs.append(profile + ".py")
  opts = Variables(customs, ARGUMENTS)
