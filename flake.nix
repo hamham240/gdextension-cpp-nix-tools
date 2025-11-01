@@ -41,8 +41,10 @@
             scons
           '';
           installPhase = ''
-            mkdir -p $out
-            cp -r ./bin/* $out
+            mkdir -p $out/lib
+            cp -r ./bin/* $out/lib
+            cp -r ./include $out
+            cp -r ./gen $out
           '';
         };
 
