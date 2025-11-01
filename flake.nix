@@ -20,8 +20,8 @@
       in
       rec {
         # A patched godot-cpp that is compatible with nix builds
-        packages.godot-cpp-patched = pkgs.stdenv.mkDerivation {
-          pname = "godot-cpp-patched";
+        packages.godot-cpp-src-patched = pkgs.stdenv.mkDerivation {
+          pname = "godot-cpp-src-patched";
           version = "4.4.1";
           src = godotCppSrc;
           patches = [ ./godot-cpp.patch ];
@@ -32,12 +32,26 @@
           '';
         };
 
+        packages.godot-cpp = pkgs.stdenv.mkDerivation {
+          pname = "godot-cpp";
+          version = "4.4.1";
+          src = godotCppSrc;
+          buildInputs = with pkgs; [ scons ];
+          buildPhase = ''
+            scons
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp -r ./bin/* $out
+          '';
+        };
+
         # A devshell that offers a build ecosystem for gdextension plugins with nix
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [ scons ];
           shellHook = ''
-            export GODOT_CPP_SRC=${packages.godot-cpp-patched}
-            export PYTHONPATH=${packages.godot-cpp-patched}:$PYTHONPATH
+            export GODOT_CPP_SRC=${packages.godot-cpp-src-patched}
+            export PYTHONPATH=${packages.godot-cpp-src-patched}:$PYTHONPATH
           '';
         };
 
