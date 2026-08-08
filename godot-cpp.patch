@@ -1,8 +1,8 @@
 diff --git a/SConstruct b/SConstruct
-index 8acea26..a37ac4a 100644
+index 3ebdff9..72d9900 100644
 --- a/SConstruct
 +++ b/SConstruct
-@@ -14,6 +14,13 @@ except Exception:
+@@ -19,6 +19,13 @@ except Exception:
  
  env.PrependENVPath("PATH", os.getenv("PATH"))
  
@@ -16,52 +16,68 @@ index 8acea26..a37ac4a 100644
  # Custom options and profile flags.
  customs = ["custom.py"]
  try:
-@@ -27,7 +34,7 @@ if profile:
-     elif os.path.isfile(profile + ".py"):
-         customs.append(profile + ".py")
- opts = Variables(customs, ARGUMENTS)
--cpp_tool = Tool("godotcpp", toolpath=["tools"])
-+cpp_tool = Tool("godotcpp", toolpath=[os.path.join(os.getenv("GODOT_CPP_SRC"), "tools")])
- cpp_tool.options(opts, env)
- opts.Update(env)
- 
 diff --git a/tools/godotcpp.py b/tools/godotcpp.py
-index 3646264..905e24d 100644
+index 7be9624..d9ca204 100644
 --- a/tools/godotcpp.py
 +++ b/tools/godotcpp.py
-@@ -16,7 +16,7 @@ from doc_source_generator import scons_generate_doc_source
+@@ -541,7 +541,7 @@ def _godot_cpp(env):
+     )
  
- 
- def add_sources(sources, dir, extension):
--    for f in os.listdir(dir):
-+    for f in os.listdir(os.path.join(os.getenv("GODOT_CPP_SRC"), dir)):
-         if f.endswith("." + extension):
-             sources.append(dir + "/" + f)
- 
-@@ -374,7 +374,7 @@ def options(opts, env):
- 
-     # Add platform options (custom tools can override platforms)
-     for pl in sorted(set(platforms + custom_platforms)):
--        tool = Tool(pl, toolpath=get_platform_tools_paths(env))
-+        tool = Tool(pl, toolpath=[os.path.join(os.getenv("GODOT_CPP_SRC"), "tools")])
-         if hasattr(tool, "options"):
-             tool.options(opts)
- 
-@@ -440,7 +440,7 @@ def generate(env):
-     env["optimize"] = ARGUMENTS.get("optimize", opt_level)
-     env["debug_symbols"] = get_cmdline_bool("debug_symbols", env.dev_build)
- 
--    tool = Tool(env["platform"], toolpath=get_platform_tools_paths(env))
-+    tool = Tool(env["platform"], toolpath=[os.path.join(os.getenv("GODOT_CPP_SRC"), "tools")])
- 
-     if tool is None or not tool.exists(env):
-         raise ValueError("Required toolchain not found for platform " + env["platform"])
-@@ -518,7 +518,7 @@ def generate(env):
- 
- 
- def _godot_cpp(env):
--    extension_dir = normalize_path(env.get("gdextension_dir", env.Dir("gdextension").abspath), env)
-+    extension_dir = os.path.join(os.getenv("GODOT_CPP_SRC"), "gdextension")
-     api_file = normalize_path(env.get("custom_api_file", env.File(extension_dir + "/extension_api.json").abspath), env)
      bindings = env.GodotCPPBindings(
-         env.Dir("."),
+-        env.Dir("."),
++        env.Dir("#"),
+         [
+             api_file,
+             os.path.join(extension_dir, "gdextension_interface.h"),
+@@ -553,12 +553,22 @@ def _godot_cpp(env):
+         env.AlwaysBuild(bindings)
+         env.NoCache(bindings)
+ 
++    # When godot-cpp lives outside the project tree (e.g. a read-only Nix store
++    # path), compile its sources into the project via a variant dir so object
++    # files are never written next to the sources.
++    src_root = env.Dir(".").srcnode().abspath
++    if src_root != env.Dir("#").abspath:
++        src_prefix = "#godot-cpp/src"
++        env.VariantDir(src_prefix, os.path.join(src_root, "src"), duplicate=0)
++    else:
++        src_prefix = "src"
++
+     # Sources to compile
+     sources = [
+-        *env.Glob("src/*.cpp"),
+-        *env.Glob("src/classes/*.cpp"),
+-        *env.Glob("src/core/*.cpp"),
+-        *env.Glob("src/variant/*.cpp"),
++        *env.Glob(src_prefix + "/*.cpp"),
++        *env.Glob(src_prefix + "/classes/*.cpp"),
++        *env.Glob(src_prefix + "/core/*.cpp"),
++        *env.Glob(src_prefix + "/variant/*.cpp"),
+         *tuple(f for f in bindings if str(f).endswith(".cpp")),
+     ]
+ 
+@@ -567,7 +577,7 @@ def _godot_cpp(env):
+         CPPPATH=[
+             env.Dir(extension_dir),
+             env.Dir("include").srcnode(),
+-            env.Dir("gen/include"),
++            env.Dir("#gen/include"),
+         ]
+     )
+ 
+@@ -575,7 +585,7 @@ def _godot_cpp(env):
+     library_name = "libgodot-cpp" + env["suffix"] + env["LIBSUFFIX"]
+ 
+     if env["build_library"]:
+-        library = env.StaticLibrary(target=env.File("bin/%s" % library_name), source=sources)
++        library = env.StaticLibrary(target=env.File("#bin/%s" % library_name), source=sources)
+         env.NoCache(library)
+         default_args = [library]
+ 
+@@ -585,5 +595,5 @@ def _godot_cpp(env):
+ 
+         env.Default(*default_args)
+ 
+-    env.AppendUnique(LIBS=[env.File("bin/%s" % library_name)])
++    env.AppendUnique(LIBS=[env.File("#bin/%s" % library_name)])
+     return library

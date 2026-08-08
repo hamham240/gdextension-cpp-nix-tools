@@ -14,15 +14,15 @@
         godotCppSrc = pkgs.fetchFromGitHub {
           owner = "godotengine";
           repo = "godot-cpp";
-          tag = "godot-4.4.1-stable";
-          sha256 = "sha256-DW8OWbiA409qAyOkzxEYiPPRa5cH2TutIR7OuC3ZRgc=";
+          tag = "godot-4.5-stable";
+          sha256 = "sha256-TfDqd5lfwCFz4IZxVwQi2hhKZTVbCfaJ0GCeScElAx0=";
         };
       in
       rec {
         # A patched godot-cpp that is compatible with nix builds
         packages.godot-cpp-src-patched = pkgs.stdenv.mkDerivation {
           pname = "godot-cpp-src-patched";
-          version = "4.4.1";
+          version = "4.5";
           src = godotCppSrc;
           patches = [ ./godot-cpp.patch ];
           phases = [ "unpackPhase" "patchPhase" "installPhase" ];
@@ -34,7 +34,7 @@
 
         packages.godot-cpp = pkgs.stdenv.mkDerivation {
           pname = "godot-cpp";
-          version = "4.4.1";
+          version = "4.5";
           src = godotCppSrc;
           buildInputs = with pkgs; [ scons ];
           buildPhase = ''
