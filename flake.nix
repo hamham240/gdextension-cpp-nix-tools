@@ -65,6 +65,7 @@
 
             cp -r ./bin/* $out/lib
             cp -r ./gen/include/* $out/include
+            cp -r $src/include/* $out/include
 
             runHook postInstall
           '';
