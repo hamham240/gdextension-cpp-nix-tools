@@ -46,6 +46,30 @@
           '';
         };
 
+        packages.godot-cpp-cmake = pkgs.stdenv.mkDerivation {
+          pname = "godot-cpp";
+          version = "4.5";
+          src = godotCppSrc;
+
+          nativeBuildInputs = with pkgs; [ 
+            cmake 
+            pkg-config 
+            python3
+          ];
+
+          installPhase = ''
+            runHook preInstall
+
+            mkdir -p $out/lib
+            mkdir -p $out/include
+
+            cp -r ./bin/* $out/lib
+            cp -r ./gen/include/* $out/include
+
+            runHook postInstall
+          '';
+        };
+
         # A devshell that offers a build ecosystem for gdextension plugins with nix
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [ scons pkgsCross.mingwW64.buildPackages.gcc pkgsCross.mingwW64.windows.mcfgthreads ];
