@@ -66,6 +66,7 @@
             cp -r ./bin/* $out/lib
             cp -r ./gen/include/* $out/include
             cp -r $src/include/* $out/include
+            cp $src/gdextension/gdextension_interface.h $out/include
 
             runHook postInstall
           '';
